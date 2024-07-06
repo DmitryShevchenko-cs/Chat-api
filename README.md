@@ -30,9 +30,11 @@ Once connected to a chat, users can send messages that will be visible to other 
 
 The application follows a 3-tier architecture:
 
-1. **Presentation Tier**: This is where the user interface components reside. It communicates with the application tier to process user input.
-2. **Application Tier**: This is where the business logic is implemented. It processes data between the presentation tier and the data tier.
-3. **Data Tier**: This is where the database management happens, storing all the chat data.
+1. **WEB**: Handles HTTP requests, routing, and interacts directly with clients.
+2. **Data access layer**: anages database interactions using Entity Framework Core or another ORM.
+3. **Bussiness logic layer**: Implements business rules, validation, and workflows.
+
+**Test**: Includes unit tests, integration tests, and mock data for testing purposes.
 
 
 
