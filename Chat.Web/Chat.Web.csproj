@@ -22,11 +22,11 @@
 
     <ItemGroup>
       <Folder Include="Controllers\" />
-      <Folder Include="MapperConfiguration\" />
       <Folder Include="Models\" />
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Chat.BLL\Chat.BLL.csproj" />
       <ProjectReference Include="..\Chat.DAL\Chat.DAL.csproj" />
     </ItemGroup>
 

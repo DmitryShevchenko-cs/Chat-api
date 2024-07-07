@@ -1,3 +1,5 @@
+using Chat.BLL.Services;
+using Chat.BLL.Services.Interfaces;
 using Chat.DAL;
 using Chat.DAL.Repositories;
 using Chat.DAL.Repositories.Interfaces;
@@ -22,11 +24,16 @@ public class Startup
         
         //automapper
         services.AddAutoMapper(typeof(Startup));
-
+        
+        // DI Repositories
         services.AddScoped<IMessageRepository, MessageRepository>();
         services.AddScoped<IRoomRepository, RoomRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
         
+        // DI Services
+        services.AddScoped<IMessageService, MessageService>();
+        services.AddScoped<IRoomService, RoomService>();
+        services.AddScoped<IUserService, UserService>();
         
         var connectionString = Environment.GetEnvironmentVariable("SQLSERVER_CONNECTION_STRING") ?? Configuration.GetConnectionString("ConnectionString");
 

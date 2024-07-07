@@ -11,9 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Exceptions\" />
-      <Folder Include="Models\" />
-      <Folder Include="Services\Interfaces\" />
+      <ProjectReference Include="..\Chat.DAL\Chat.DAL.csproj" />
     </ItemGroup>
 
 </Project>
