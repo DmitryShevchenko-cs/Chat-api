@@ -7,7 +7,7 @@ public class Room : BaseEntity
     public int CreatorId { get; set; }
     public User Creator { get; set; } = null!;
     
-    public IEnumerable<User> Users { get; set; } = null!;
+    public ICollection<User> Users { get; set; } = null!;
 
     public IEnumerable<Message> Messages { get; set; } = null!;
 }

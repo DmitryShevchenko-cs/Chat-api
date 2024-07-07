@@ -6,16 +6,14 @@ namespace Chat.DAL.Repositories;
 
 public class UserRepository(ChatDbContext chatDbContext) : IUserRepository
 {
-    private readonly ChatDbContext _chatDbContext = chatDbContext;
-
     public IQueryable<User> GetAll()
     {
-        return _chatDbContext.Users.AsQueryable();
+        return chatDbContext.Users.AsQueryable();
     }
 
     public async Task<User?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
-        return await _chatDbContext.Users
+        return await chatDbContext.Users
             .Include(r => r.CreatedRooms)
             .Include(r => r.JoinedRooms)
             .SingleOrDefaultAsync(r => r.Id == id, cancellationToken);
@@ -23,21 +21,21 @@ public class UserRepository(ChatDbContext chatDbContext) : IUserRepository
 
     public async Task<User> CreateAsync(User entity, CancellationToken cancellationToken = default)
     {
-        var entityEntry = await _chatDbContext.Users.AddAsync(entity, cancellationToken);
-        await _chatDbContext.SaveChangesAsync(cancellationToken);
+        var entityEntry = await chatDbContext.Users.AddAsync(entity, cancellationToken);
+        await chatDbContext.SaveChangesAsync(cancellationToken);
         return entityEntry.Entity;
     }
 
-    public async Task<User> EditAsync(User entity, CancellationToken cancellationToken = default)
+    public async Task<User> UpdateAsync(User entity, CancellationToken cancellationToken = default)
     {
-        var entityEntry = _chatDbContext.Users.Update(entity);
-        await _chatDbContext.SaveChangesAsync(cancellationToken);
+        var entityEntry = chatDbContext.Users.Update(entity);
+        await chatDbContext.SaveChangesAsync(cancellationToken);
         return entityEntry.Entity;
     }
 
     public async Task DeleteAsync(User entity, CancellationToken cancellationToken = default)
     {
-        _chatDbContext.Users.Remove(entity);
-        await _chatDbContext.SaveChangesAsync(cancellationToken);
+        chatDbContext.Users.Remove(entity);
+        await chatDbContext.SaveChangesAsync(cancellationToken);
     }
 }
