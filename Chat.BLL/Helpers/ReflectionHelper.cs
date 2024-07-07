@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace Chat.BLL.Helper;
+namespace Chat.BLL.Helpers;
 
 public class ReflectionHelper
 {
