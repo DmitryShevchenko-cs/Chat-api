@@ -16,7 +16,7 @@ public class MessageService(IMessageRepository messageRepository, IUserRepositor
         return mapper.Map<MessageModel>(await messageRepository.GetByIdAsync(id, cancellationToken));
     }
 
-    public async Task<MessageModel> CreateMessageAsync(int userId, int roomId, string text, CancellationToken cancellationToken)
+    public async Task<MessageModel> CreateMessageAsync(int userId, int roomId, string text, CancellationToken cancellationToken = default)
     {
         var userDb = await userRepository.GetByIdAsync(userId, cancellationToken);
         if (userDb is null)
@@ -36,7 +36,7 @@ public class MessageService(IMessageRepository messageRepository, IUserRepositor
         return mapper.Map<MessageModel>(messageDb);
     }
 
-    public async Task<IEnumerable<MessageModel>> GetChatMessagesAsync(int userId, int roomId, CancellationToken cancellationToken)
+    public async Task<IEnumerable<MessageModel>> GetChatMessagesAsync(int userId, int roomId, CancellationToken cancellationToken = default)
     {
         var userDb = await userRepository.GetByIdAsync(userId, cancellationToken);
         if (userDb is null)
@@ -48,7 +48,7 @@ public class MessageService(IMessageRepository messageRepository, IUserRepositor
 
         if (!roomDb.Users.Contains(userDb)) throw new UserOutOfRoomException("User is not in the room");
         
-        var messages = messageRepository.GetAll().Where(r => r.RoomId == roomId)
+        var messages = await messageRepository.GetAll().Where(r => r.RoomId == roomId)
             .ToListAsync(cancellationToken);
 
         return mapper.Map<IEnumerable<MessageModel>>(messages);

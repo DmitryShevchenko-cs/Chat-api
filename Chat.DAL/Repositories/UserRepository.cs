@@ -8,7 +8,10 @@ public class UserRepository(ChatDbContext chatDbContext) : IUserRepository
 {
     public IQueryable<User> GetAll()
     {
-        return chatDbContext.Users.AsQueryable();
+        return chatDbContext.Users
+            .Include(r => r.CreatedRooms)
+            .Include(r => r.JoinedRooms)
+            .AsQueryable();
     }
 
     public async Task<User?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
