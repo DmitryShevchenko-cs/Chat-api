@@ -71,7 +71,7 @@ public class RoomService(IRoomRepository roomRepository, IMapper mapper, IUserRe
         return mapper.Map<RoomModel>(room);
     }
     
-    public async Task DeleteRoomAsync(int userId, int roomId, CancellationToken cancellationToken = default)
+    public async Task<bool> DeleteRoomAsync(int userId, int roomId, CancellationToken cancellationToken = default)
     {
         var userDb = await userRepository.GetByIdAsync(userId, cancellationToken);
         if (userDb is null)
@@ -83,9 +83,10 @@ public class RoomService(IRoomRepository roomRepository, IMapper mapper, IUserRe
 
         //only creator can delete room
         if (roomDb.CreatorId != userDb.Id)
-            throw new NoPermissionsException("There are no permissions to do the operation");
+            return false;
 
         await roomRepository.DeleteAsync(roomDb, cancellationToken);
+        return true;
     } 
 
     public async Task JoinRoomAsync(int userId, int roomId, CancellationToken cancellationToken = default)
@@ -124,15 +125,21 @@ public class RoomService(IRoomRepository roomRepository, IMapper mapper, IUserRe
         await roomRepository.UpdateAsync(roomDb, cancellationToken);
     }
 
-    public async Task<IEnumerable<RoomModel>> GetAllUsersRoomsAsync(int userId, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<RoomModel>> GetAllRoomsAsync(int userId, CancellationToken cancellationToken = default)
     {
         var userDb = await userRepository.GetByIdAsync(userId, cancellationToken);
         if (userDb is null)
             throw new UserNotFoundException($"User with Id {userId} not found");
 
-        var rooms = await roomRepository.GetAll().Where(r => r.CreatorId == userId || r.Users.Contains(userDb))
+        var rooms = await roomRepository.GetAll().Include(r => r.Users).Where(r => r.CreatorId == userId || r.Users.Contains(userDb))
             .ToListAsync(cancellationToken);
 
         return mapper.Map<IEnumerable<RoomModel>>(rooms);
+    }
+
+    public async Task<IEnumerable<RoomModel>> GetByNameRoomsAsync(string name, CancellationToken cancellationToken = default)
+    {
+        return mapper.Map<List<RoomModel>>(await roomRepository.GetAll().Include(r => r.Users).Where(r => r.Name.StartsWith(name))
+            .ToListAsync(cancellationToken));
     }
 }

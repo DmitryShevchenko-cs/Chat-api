@@ -65,7 +65,7 @@ public class UserService(IUserRepository userRepository,  IMapper mapper) : IUse
         await userRepository.DeleteAsync(userDb, cancellationToken);
     }
 
-    public async Task<IEnumerable<UserModel>> GetAllUsersAsync(int userId, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<UserModel>> GetAllUsersAsync(CancellationToken cancellationToken = default)
     {
         return mapper.Map<IEnumerable<UserModel>>(await userRepository.GetAll().ToListAsync(cancellationToken));
     }

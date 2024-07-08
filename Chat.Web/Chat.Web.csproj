@@ -21,13 +21,12 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Controllers\" />
-      <Folder Include="Models\" />
+      <ProjectReference Include="..\Chat.BLL\Chat.BLL.csproj" />
+      <ProjectReference Include="..\Chat.DAL\Chat.DAL.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Chat.BLL\Chat.BLL.csproj" />
-      <ProjectReference Include="..\Chat.DAL\Chat.DAL.csproj" />
+      <Folder Include="Helper\" />
     </ItemGroup>
 
 </Project>

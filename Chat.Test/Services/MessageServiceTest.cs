@@ -36,14 +36,10 @@ public class MessageServiceTest : DefaultServiceTest<IMessageService, MessageSer
 
         var message1 = await Service.CreateMessageAsync(user.Id, room.Id, "test user mess1");
         var message2 = await Service.CreateMessageAsync(member1.Id, room.Id, "test member mess1");
-        var messages = await Service.GetChatMessagesAsync(member1.Id, room.Id);
+        var messages = await Service.GetRoomMessagesAsync(member1.Id, room.Id);
         
         Assert.That(messages.Select(r => r.Text).Contains(message1.Text));
         Assert.That(messages.Select(r => r.Text).Contains(message2.Text));
         
     }
-    
-    
-    
-    
 }

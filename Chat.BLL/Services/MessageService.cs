@@ -36,7 +36,7 @@ public class MessageService(IMessageRepository messageRepository, IUserRepositor
         return mapper.Map<MessageModel>(messageDb);
     }
 
-    public async Task<IEnumerable<MessageModel>> GetChatMessagesAsync(int userId, int roomId, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<MessageModel>> GetRoomMessagesAsync(int userId, int roomId, CancellationToken cancellationToken = default)
     {
         var userDb = await userRepository.GetByIdAsync(userId, cancellationToken);
         if (userDb is null)
