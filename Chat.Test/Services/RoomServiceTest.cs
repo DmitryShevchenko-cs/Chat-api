@@ -22,7 +22,7 @@ public class RoomServiceTest : DefaultServiceTest<IRoomService, RoomService>
     }
 
     [Test]
-    public async Task CreateRoom_Access()
+    public async Task CreateRoom_Success()
     {
         var userService = ServiceProvider.GetRequiredService<IUserService>();
         var user = await userService.CreateUserAsync("Full Name");
@@ -31,7 +31,7 @@ public class RoomServiceTest : DefaultServiceTest<IRoomService, RoomService>
     }
     
     [Test]
-    public async Task JoinRoom_Access()
+    public async Task JoinRoom_Success()
     {
         var userService = ServiceProvider.GetRequiredService<IUserService>();
         var user = await userService.CreateUserAsync("Full Name");
@@ -51,7 +51,7 @@ public class RoomServiceTest : DefaultServiceTest<IRoomService, RoomService>
     }
 
     [Test]
-    public async Task LeaveRoom_Access()
+    public async Task LeaveRoom_Success()
     {
         var userService = ServiceProvider.GetRequiredService<IUserService>();
         var user = await userService.CreateUserAsync("Full Name");
@@ -76,7 +76,7 @@ public class RoomServiceTest : DefaultServiceTest<IRoomService, RoomService>
     }
 
     [Test]
-    public async Task DeleteRoom_Access()
+    public async Task DeleteRoom_Success()
     {
         var userService = ServiceProvider.GetRequiredService<IUserService>();
         var user = await userService.CreateUserAsync("Full Name");
@@ -99,7 +99,7 @@ public class RoomServiceTest : DefaultServiceTest<IRoomService, RoomService>
     }
     
     [Test]
-    public async Task DeleteRoom_NoPermission_Access()
+    public async Task DeleteRoom_NoPermission_Success()
     {
         var userService = ServiceProvider.GetRequiredService<IUserService>();
         var user = await userService.CreateUserAsync("Full Name");
@@ -114,7 +114,7 @@ public class RoomServiceTest : DefaultServiceTest<IRoomService, RoomService>
     
     
     [Test]
-    public async Task UpdateRoom_Access()
+    public async Task UpdateRoom_Success()
     {
         const string newName = "new Name";
         
@@ -130,6 +130,27 @@ public class RoomServiceTest : DefaultServiceTest<IRoomService, RoomService>
 
         var updatedRoom = await Service.GetByIdAsync(room.Id);
         Assert.That(updatedRoom!.Name, Is.EqualTo(newName));
+    }
+
+    [Test]
+    public async Task GetAllRooms_Success()
+    {
+        var userService = ServiceProvider.GetRequiredService<IUserService>();
+        var user = await userService.CreateUserAsync("Full Name");
+        var room = await Service.CreateRoomAsync(user.Id, "Test Room" );
+        Assert.That(room.Creator.FullName, Is.EqualTo(user.FullName));
+        
+        var member1 = await userService.CreateUserAsync("member1");
+        await Service.JoinRoomAsync(member1.Id, room.Id);
+
+        await Service.CreateRoomAsync(member1.Id, "Test Room2" );
+        
+        var rooms = await Service.GetAllRoomsAsync(member1.Id);
+        Assert.That(rooms.Count(), Is.EqualTo(2));
+        
+        rooms = await Service.GetAllRoomsAsync(user.Id);
+        Assert.That(rooms.Count(), Is.EqualTo(1));
+        
     }
     
 }

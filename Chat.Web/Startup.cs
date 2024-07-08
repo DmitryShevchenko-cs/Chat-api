@@ -3,6 +3,8 @@ using Chat.BLL.Services.Interfaces;
 using Chat.DAL;
 using Chat.DAL.Repositories;
 using Chat.DAL.Repositories.Interfaces;
+using Chat.Web.Hubs;
+using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Converters;
 
@@ -21,6 +23,11 @@ public class Startup
     {
         services.AddControllers().AddNewtonsoftJson(opt => 
             opt.SerializerSettings.Converters.Add(new StringEnumConverter()));
+        
+        services.AddSignalR().AddHubOptions<RoomHub>(options =>
+        {
+            options.EnableDetailedErrors = true;
+        });
         
         //automapper
         services.AddAutoMapper(typeof(Startup));
@@ -58,7 +65,12 @@ public class Startup
         
         app.UseEndpoints(endpoints =>
         {
-            endpoints.MapControllers();
+            endpoints.MapDefaultControllerRoute();
+            endpoints.MapHub<RoomHub>("/roomHub", options =>
+            {
+                options.Transports = HttpTransportType.LongPolling | HttpTransportType.WebSockets;
+            });
+            
         });
         
     }
