@@ -71,7 +71,7 @@ public class RoomService(IRoomRepository roomRepository, IMapper mapper, IUserRe
         return mapper.Map<RoomModel>(room);
     }
     
-    public async Task<bool> DeleteRoomAsync(int userId, int roomId, CancellationToken cancellationToken = default)
+    public async Task DeleteRoomAsync(int userId, int roomId, CancellationToken cancellationToken = default)
     {
         var userDb = await userRepository.GetByIdAsync(userId, cancellationToken);
         if (userDb is null)
@@ -83,10 +83,9 @@ public class RoomService(IRoomRepository roomRepository, IMapper mapper, IUserRe
 
         //only creator can delete room
         if (roomDb.CreatorId != userDb.Id)
-            return false;
+            throw new NoPermissionsException("There are no permissions to do the operation");
 
         await roomRepository.DeleteAsync(roomDb, cancellationToken);
-        return true;
     } 
 
     public async Task JoinRoomAsync(int userId, int roomId, CancellationToken cancellationToken = default)
