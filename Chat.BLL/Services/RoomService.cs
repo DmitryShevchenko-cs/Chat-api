@@ -13,17 +13,25 @@ public class RoomService(IRoomRepository roomRepository, IMapper mapper, IUserRe
 {
     public async Task<RoomModel?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
-        return mapper.Map<RoomModel>(await roomRepository.GetByIdAsync(id, cancellationToken));
+        var roomDb = await roomRepository.GetByIdAsync(id, cancellationToken);
+        if (roomDb is null)
+            throw new RoomNotFoundException($"Room with Id {id} not found");
+        
+        return mapper.Map<RoomModel>(roomDb);
     }
 
-    public async Task<RoomModel> CreateRoomAsync(int userId, RoomModel roomModel, CancellationToken cancellationToken = default)
+    public async Task<RoomModel> CreateRoomAsync(int userId, string roomName, CancellationToken cancellationToken = default)
     {
         var userDb = await userRepository.GetByIdAsync(userId, cancellationToken);
         if (userDb is null)
             throw new UserNotFoundException($"User with Id {userId} not found");
-
-        roomModel.CreatorId = userDb.Id;
-        var roomDb = await roomRepository.CreateAsync(mapper.Map<Room>(roomModel), cancellationToken);
+        
+        var roomDb = await roomRepository.CreateAsync(new Room
+        {
+            Name = roomName,
+            CreatorId = userDb.Id,
+            Users = new List<User>{userDb}
+        }, cancellationToken);
 
         return mapper.Map<RoomModel>(roomDb);
     }
@@ -38,6 +46,7 @@ public class RoomService(IRoomRepository roomRepository, IMapper mapper, IUserRe
         if (roomDb is null)
             throw new RoomNotFoundException($"Room with Id {roomId} not found");
         
+        //only creator can update room
         if (roomDb.CreatorId != userDb.Id)
             throw new NoPermissionsException("There are no permissions to do the operation");
         
@@ -51,6 +60,7 @@ public class RoomService(IRoomRepository roomRepository, IMapper mapper, IUserRe
 
             if (roomSourceValue != null && 
                 !ReferenceEquals(roomSourceValue, "") &&
+                !Equals(roomSourceValue, 0) &&
                 !roomSourceValue.Equals(roomTargetValue))
             {
                 roomDbProperty.SetValue(roomDb, roomSourceValue);
@@ -71,6 +81,7 @@ public class RoomService(IRoomRepository roomRepository, IMapper mapper, IUserRe
         if (roomDb is null)
             throw new RoomNotFoundException($"Room with Id {roomId} not found");
 
+        //only creator can delete room
         if (roomDb.CreatorId != userDb.Id)
             throw new NoPermissionsException("There are no permissions to do the operation");
 
@@ -101,6 +112,11 @@ public class RoomService(IRoomRepository roomRepository, IMapper mapper, IUserRe
         if (roomDb is null)
             throw new RoomNotFoundException($"Room with Id {roomId} not found");
 
+        //creator can't leave
+        if (roomDb.CreatorId == userId)
+            throw new NoPermissionsException("There are no permissions to do the operation");
+        
+        //user have to be a member to leave
         if (!roomDb.Users.Contains(userDb))
             throw new UserInRoomException($"User with Id {userId} is not a room member");
         

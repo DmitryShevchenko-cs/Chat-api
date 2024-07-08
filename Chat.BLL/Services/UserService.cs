@@ -5,6 +5,7 @@ using Chat.BLL.Models;
 using Chat.BLL.Services.Interfaces;
 using Chat.DAL.Entities;
 using Chat.DAL.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Chat.BLL.Services;
 
@@ -12,12 +13,19 @@ public class UserService(IUserRepository userRepository,  IMapper mapper) : IUse
 {
     public async Task<UserModel?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
-        return mapper.Map<UserModel>(await userRepository.GetByIdAsync(id, cancellationToken));
+        var userDb = await userRepository.GetByIdAsync(id, cancellationToken);
+        if (userDb is null)
+            throw new UserNotFoundException($"User with Id {id} not found");
+        
+        return mapper.Map<UserModel>(userDb);
     }
 
-    public async Task<UserModel> CreateUserAsync(UserModel userModel, CancellationToken cancellationToken = default)
+    public async Task<UserModel> CreateUserAsync(string userFullName, CancellationToken cancellationToken = default)
     {
-        var userDb = await userRepository.CreateAsync(mapper.Map<User>(userModel), cancellationToken);
+        var userDb = await userRepository.CreateAsync(new User
+        {
+            FullName = userFullName
+        }, cancellationToken);
 
         return mapper.Map<UserModel>(userDb);
     }
@@ -55,5 +63,10 @@ public class UserService(IUserRepository userRepository,  IMapper mapper) : IUse
             throw new UserNotFoundException($"User with Id {userId} not found");
 
         await userRepository.DeleteAsync(userDb, cancellationToken);
+    }
+
+    public async Task<IEnumerable<UserModel>> GetAllUsersAsync(int userId, CancellationToken cancellationToken = default)
+    {
+        return mapper.Map<IEnumerable<UserModel>>(await userRepository.GetAll().ToListAsync(cancellationToken));
     }
 }
